@@ -1,4 +1,4 @@
 name: Fimlarin
-version: '1.0-SNAPSHOT'
+version: 1.1-dev
 main: dev.liliana.fimlarin.Main
 api-version: '1.21'
