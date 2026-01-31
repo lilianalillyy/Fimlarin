@@ -3,6 +3,7 @@ package dev.liliana.fimlarin.game.shadowinventory;
 import dev.liliana.fimlarin.Main;
 import dev.liliana.fimlarin.PluginService;
 import dev.liliana.fimlarin.entity.player.PlayerService;
+import dev.liliana.fimlarin.entity.player.inventory.PlayerInventoryUtils;
 import java.util.Map;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -24,17 +25,29 @@ public class ShadowInventoryService extends PluginService {
     this.playerService = playerService;
   }
 
+  /**
+   * Registers the listener that handles shadow inventory events.
+   */
   @Override
   public void onEnable() {
-    ShadowInventoryListener shadowInventoryListener = new ShadowInventoryListener(this, plugin);
+    ShadowInventoryListener shadowInventoryListener = new ShadowInventoryListener(this);
     registerListeners(shadowInventoryListener);
   }
 
+  /**
+   * Flushes all shadow inventories for all players when the plugin is disabled (= reload/server shutdown).
+   */
   @Override
   public void onDisable() {
     flushAll(plugin);
   }
 
+  /**
+   * Adds an item to the player's shadow inventory.
+   *
+   * @param player Player to add item to
+   * @param itemStack Item to add
+   */
   public void addItemToShadowInventory(Player player, ItemStack itemStack) {
     ShadowInventory shadow = shadowInventoryCollection.get(player);
 
@@ -45,6 +58,13 @@ public class ShadowInventoryService extends PluginService {
     shadow.getPendingStacks().add(itemStack);
   }
 
+  /**
+   * Checks if the incoming item fits in the player's inventory, taking into account the shadow inventory's state.
+   *
+   * @param player Player to check inventory space for
+   * @param incoming Incoming item to check
+   * @return true if the item fits; false otherwise
+   */
   public boolean hasCombinedInventorySpace(Player player, ItemStack incoming) {
     // If the player inventory is already full, just act naturally as the item is not supposed to get picked up.
     if (playerService.isInventoryFull(player)) {
@@ -58,16 +78,28 @@ public class ShadowInventoryService extends PluginService {
       return true;
     }
 
-    // Simulate player's inventory with applied shadow inventory to check if the incoming item fits.
-    ItemStack[] simulatedInv = ShadowInventoryUtils.createSimulatedInventory(player, shadow);
-
-    // Clone the incoming stack here to avoid modifying the original stack.
+    // Simulate the player's inventory with applied shadow inventory to check if the incoming item fits.
+    ItemStack[] combinedInventoryContents = ShadowInventoryUtils.createCombinedInventoryContents(
+        player, shadow);
+    return PlayerInventoryUtils.tryInsertIntoContents(combinedInventoryContents, incoming);
   }
 
+  /**
+   * Checks if the player's inventory is shadowed.
+   *
+   * @param player Player to check
+   * @return true if the player's inventory is shadowed; false otherwise
+   */
   public boolean isPlayerInventoryShadowed(Player player) {
     return playerService.isItemInInventory(player, SHADOW_INVENTORY_TRIGGER);
   }
 
+  /**
+   * Flushes the pending items in the shadow inventory into their actual inventory.
+   *
+   * @param player Player whose inventory to flush
+   * @param shadow Shadow inventory to flush
+   */
   public void flush(Player player, ShadowInventory shadow) {
     for (ItemStack pendingStack : shadow.getPendingStacks()) {
       Map<Integer, ItemStack> leftovers = player.getInventory().addItem(pendingStack);
@@ -87,6 +119,9 @@ public class ShadowInventoryService extends PluginService {
     flush(player, shadow);
   }
 
+  /**
+   * Flushes all shadow inventories for all players.
+   */
   public void flushAll(JavaPlugin plugin) {
     shadowInventoryCollection.getAllInventories().forEach((uuid, shadow) -> {
       Player player = plugin.getServer().getPlayer(uuid);

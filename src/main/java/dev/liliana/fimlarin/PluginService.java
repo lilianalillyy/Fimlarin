@@ -2,6 +2,9 @@ package dev.liliana.fimlarin;
 
 import org.bukkit.event.Listener;
 
+/**
+ * Base class for services that are registered with the plugin.
+ */
 public abstract class PluginService {
 
   protected final Main plugin;

@@ -1,7 +1,5 @@
 package dev.liliana.fimlarin.game.shadowinventory;
 
-import dev.liliana.fimlarin.Main;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,13 +13,13 @@ public class ShadowInventoryListener implements Listener {
 
   private final ShadowInventoryService shadowInventoryService;
 
-  private final Main plugin;
-
-  public ShadowInventoryListener(ShadowInventoryService shadowInventoryService, Main plugin) {
+  public ShadowInventoryListener(ShadowInventoryService shadowInventoryService) {
     this.shadowInventoryService = shadowInventoryService;
-    this.plugin = plugin;
   }
 
+  /**
+   * Flushes the player's shadow inventory when they open a crafting table.
+   */
   @EventHandler
   public void onCraftingTableOpen(InventoryOpenEvent event) {
     if (!(event.getPlayer() instanceof Player player)) {
@@ -31,6 +29,9 @@ public class ShadowInventoryListener implements Listener {
     shadowInventoryService.flush(player);
   }
 
+  /**
+   * Adds the picked-up item to the player's shadow inventory if it fits.
+   */
   @EventHandler(ignoreCancelled = true)
   public void onItemPickup(EntityPickupItemEvent event) {
     if (!(event.getEntity() instanceof Player player)
@@ -50,6 +51,9 @@ public class ShadowInventoryListener implements Listener {
     event.getItem().remove();
   }
 
+  /**
+   * Prevents the player from dropping items if their inventory is shadowed.
+   */
   @EventHandler(ignoreCancelled = true)
   public void onItemDrop(PlayerDropItemEvent e) {
     Player player = e.getPlayer();
@@ -61,6 +65,9 @@ public class ShadowInventoryListener implements Listener {
     e.setCancelled(true);
   }
 
+  /**
+   * Flushes the player's shadow inventory when they leave the server to ensure no items are actually lost.
+   */
   @EventHandler
   public void onPlayerQuit(PlayerQuitEvent e) {
     // Ensure that the inventory is updated when the player leaves the server.
