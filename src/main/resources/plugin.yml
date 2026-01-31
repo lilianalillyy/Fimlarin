@@ -1,4 +1,5 @@
 name: Fimlarin
+version: 1.0
 author: liliana
 main: dev.liliana.fimlarin.Main
 api-version: '1.21'
