@@ -1,6 +1,7 @@
 package dev.liliana.fimlarin;
 
 import dev.liliana.fimlarin.entity.player.PlayerService;
+import dev.liliana.fimlarin.game.infinityfruit.InfinityFruitService;
 import dev.liliana.fimlarin.game.shadowinventory.ShadowInventoryRepository;
 import dev.liliana.fimlarin.game.shadowinventory.ShadowInventoryService;
 import java.util.HashMap;
@@ -19,7 +20,9 @@ public final class Main extends JavaPlugin {
         this, shadowInventoryCollection,
         playerService);
 
-    registerServices(playerService, shadowInventoryService);
+    InfinityFruitService infinityFruitService = new InfinityFruitService(this, shadowInventoryService);
+
+    registerServices(playerService, shadowInventoryService, infinityFruitService);
   }
 
   @Override
