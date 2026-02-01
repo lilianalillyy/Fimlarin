@@ -16,7 +16,7 @@ public class PlayerInventoryUtils {
 
     // First, let's try to top off existing stacks.
     for (ItemStack currentStack : contents) {
-      if (isEmptySlot(currentStack)) {
+      if (isNonExistentItem(currentStack)) {
         continue;
       }
 
@@ -49,7 +49,7 @@ public class PlayerInventoryUtils {
     for (int i = 0; i < contents.length; i++) {
       ItemStack currentStack = contents[i];
 
-      if (!isEmptySlot(currentStack)) {
+      if (!isNonExistentItem(currentStack)) {
         continue;
       }
 
@@ -91,12 +91,12 @@ public class PlayerInventoryUtils {
   }
 
   /**
-   * Checks if the stack represents an empty slot.
+   * Checks if the given stack is null, air or has an amount of 0.
    *
    * @param stack the stack to check
-   * @return true if the stack is null, air or has an amount of 0; false otherwise
+   * @return true if at least one of the conditions is met; false otherwise
    */
-  public static boolean isEmptySlot(ItemStack stack) {
+  public static boolean isNonExistentItem(ItemStack stack) {
     return stack == null || stack.getType().isAir() || stack.getAmount() <= 0;
   }
 
